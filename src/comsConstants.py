@@ -1,0 +1,5 @@
+BASE_URL = "http://localhost:8080"
+TOKEN_FIELD = "jwt"
+AUTH_ENDPOINT = "auth"
+AUTH_EMAIL = "email"
+AUTH_PASSWORD = "password"
