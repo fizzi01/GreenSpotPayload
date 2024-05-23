@@ -21,14 +21,14 @@ class SystemInfo:
                     cpu_name = "Errore nel recuperare il nome della CPU"
 
             else:
-                cpu_name = platform.processor()
-                if not cpu_name and platform.system() == 'Linux':
+                cpu_name = ""
+                if platform.system() == 'Linux':
                     with open('/proc/cpuinfo') as f:
                         for line in f:
                             if 'model name' in line:
                                 cpu_name = line.split(':')[1].strip()
                                 break
-                elif not cpu_name and platform.system() == 'Windows':
+                elif platform.system() == 'Windows':
                     cpu_name = subprocess.check_output(['wmic', 'cpu', 'get', 'name']).decode().split('\n')[1].strip()
 
             if "(R)" or "(TM)" in cpu_name:
@@ -38,18 +38,22 @@ class SystemInfo:
             if "CPU @" in cpu_name:
                 cpu_name = cpu_name.split("CPU @")[0].strip()
 
+            # Rimuove da 12th Gen Intel Core i5-12600K la parte prima d Intel ...
+            if "Intel" in cpu_name:
+                cpu_name = cpu_name.split("Gen")[1].strip()
+
             return [cpu_name]
         except Exception as e:
-            return f"Errore nel recuperare il nome della CPU: {e}"
+            return []
 
     @staticmethod
     def get_nvidia_gpu_names():
         try:
             gpus = GPUtil.getGPUs()
-            gpu_names = [gpu.name for gpu in gpus]
+            gpu_names = [gpu.name.replace("NVIDIA ", "") for gpu in gpus]
             return gpu_names
         except Exception as e:
-            return f"Errore nel recuperare i nomi delle GPU NVIDIA: {e}"
+            return []
 
     @staticmethod
     def get_amd_gpu_names():
@@ -79,9 +83,9 @@ class SystemInfo:
 
                 return gpu_names if gpu_names else ["Nessuna GPU AMD trovata"]
             else:
-                return ["Sistema operativo non supportato per GPU AMD"]
+                return []
         except Exception as e:
-            return f"Errore nel recuperare i nomi delle GPU AMD: {e}"
+            return []
 
     def get_all_resources(self):
         cpu_list = self.list_cpus()
@@ -111,9 +115,3 @@ class SystemInfo:
                 print(f"Risorsa ({self.selected_resource}) selezionata.")
                 return True
         return False
-
-
-sys = SystemInfo()
-sys.display_resources()
-sys.select_resource(3)
-sys.select_resource_byname("intel Core i7-9750H")

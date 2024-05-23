@@ -41,6 +41,7 @@ def main():
     comms.notify_payload_start()
 
     # Run the payload
+    print("Starting Task...")
     stdin, stdout = runner.run()
 
     if stdout is None or stdin is None:
