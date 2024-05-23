@@ -4,6 +4,7 @@ import sys
 
 from communication import ApiCaller, PayloadCommunication
 from payload import ProgramRunner
+from src.sysInfo import SystemInfo
 
 
 def main():
@@ -21,11 +22,23 @@ def main():
 
     runner = ProgramRunner(args.payload_path)
     comms = PayloadCommunication()
+    sys_info = SystemInfo()
+    sys_info.get_all_resources()
 
     # Get authentication
     if not comms.login(args.email, password):
         print("Errore nel login")
         exit(1)
+
+    # Recupera la risorsa assegnata
+    if not sys_info.select_resource_byname(comms.get_resource(args.email)):
+        print("Errore nel recuperare la risorsa assegnata.")
+        comms.notify_payload_start()
+        comms.notify_payload_end()
+        exit(1)
+
+    # Comunica l'avvio del payload
+    comms.notify_payload_start()
 
     # Run the payload
     stdin, stdout = runner.run()
@@ -33,8 +46,6 @@ def main():
     if stdout is None or stdin is None:
         print("Errore nell'avvio del payload.")
         exit(1)
-
-    # Comunica l'avvio del payload
 
 
 if __name__ == '__main__':

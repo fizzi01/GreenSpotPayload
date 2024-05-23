@@ -109,8 +109,8 @@ class SystemInfo:
             if resource_name_lower in resource.lower():
                 self.selected_resource = resource
                 print(f"Risorsa ({self.selected_resource}) selezionata.")
-                return
-        print("Risorsa non trovata.")
+                return True
+        return False
 
 
 sys = SystemInfo()

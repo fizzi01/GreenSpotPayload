@@ -59,6 +59,7 @@ class PayloadCommunication:
     def __init__(self):
         self.api = ApiCaller(BASE_URL)
         self.__token = None
+        self.__resource = None
 
     def login(self, email, password):
         response = self.api.post(AUTH_ENDPOINT, {AUTH_EMAIL: email, AUTH_PASSWORD: password})
@@ -96,4 +97,4 @@ class PayloadCommunication:
         return self.do("POST", "payload/error", {"token": self.__token, "error": error})
 
     def get_resource(self, email):
-        return self.do("GET", "resource", {"email": email})
+        self.__resource = self.do("GET", "resource", {"email": email})
