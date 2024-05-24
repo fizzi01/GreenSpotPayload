@@ -8,7 +8,7 @@ AUTH_EMAIL = "email"
 AUTH_PASSWORD = "password"
 
 RESOURCE_PORT = "8089"
-RESOURCE_ENDPOINT = "api/X"
+RESOURCE_ENDPOINT = "/api/tasks/assignments/resource/info"
 
 ASSIGNMENT_NOTIFY_PORT = "8089"
-ASSIGNMENT_NOTIFY_ENDPOINT = "api/X"
+ASSIGNMENT_NOTIFY_ENDPOINT = "/api/tasks/assignments/resource/update"

@@ -51,13 +51,15 @@ class ApiCaller:
 
 class PayloadCommunication:
 
-    def __init__(self):
+    def __init__(self, resource_id: str = "", email: str = ""):
         self.api = ApiCaller(BASE_URL)
         self.__token = None
         self.__resource = None
+        self.__resource_id = resource_id
+        self.__email = email
 
-    def login(self, email, password):
-        response = self.api.post(AUTH_ENDPOINT, AUTH_PORT, "", {AUTH_EMAIL: email, AUTH_PASSWORD: password})
+    def login(self, password):
+        response = self.api.post(AUTH_ENDPOINT, AUTH_PORT, "", {AUTH_EMAIL: self.__email, AUTH_PASSWORD: password})
         if response is None:
             print("Errore nel login.")
             return False
@@ -81,13 +83,16 @@ class PayloadCommunication:
             return None
 
     def notify_payload_start(self):
-        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token, {"X": ""})
+        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token, {"assignedResourceId": self.__resource_id, "memberEmail": self.__email, "start": True})
 
     def notify_payload_end(self):
-        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token, {"X": ""})
+        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token,
+                       {"assignedResourceId": self.__resource_id, "memberEmail": self.__email, "stop": True})
 
-    def notify_payload_error(self, error):
-        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token, {"X": error})
-
-    def get_resource(self, email):
-        return self.do("GET", RESOURCE_ENDPOINT, RESOURCE_PORT, self.__token, {"email": email})
+    def get_resource(self):
+        response =  self.do("POST", RESOURCE_ENDPOINT, RESOURCE_PORT, self.__token, {"assignedResourceId": self.__resource_id, "memberEmail": self.__email})
+        if response is not None:
+            hardware_name = response['hardwareName']
+        else:
+            hardware_name = ""
+        return hardware_name
