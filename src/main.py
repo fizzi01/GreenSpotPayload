@@ -7,6 +7,13 @@ from communication import PayloadCommunication
 from payload import ProgramRunner
 from src.sysInfo import SystemInfo
 
+def on_error(e, func):
+    print(f"Errore nell'avvio: {e}")
+    func.notify_payload_start()
+    func.notify_payload_end()
+    exit(1)
+
+
 
 def main():
     parser = argparse.ArgumentParser(description='Esegui il payload.')
@@ -30,7 +37,6 @@ def main():
 
     # Get authentication
     if not comms.login(password):
-        print("Errore nel login")
         exit(1)
 
     # Recupera la risorsa assegnata
@@ -41,30 +47,40 @@ def main():
         exit(1)
 
     # Comunica l'avvio del payload
-    comms.notify_payload_start()
+    try:
+        comms.notify_payload_start()
+    except Exception as e:
+        on_error(e, comms)
 
     # Run the payload
     print("Starting Task...")
-    stdin, stdout = runner.run()
+    try:
+        stdin, stdout = runner.run()
 
-    while True:
-        if stdout is not None:
-            output = stdout.readline()
-            if output == '':
+        while True:
+            if stdout is not None:
+                output = stdout.readline()
+                if output == '':
+                    break
+                if output:
+                    print(output.strip())
+            else:
+                print("Errore durante esecuzione.")
                 break
-            if output:
-                print(output.strip())
-        else:
+
+
+            time.sleep(0.1)
+
+        if stdout is None or stdin is None:
             print("Errore nell'avvio del payload.")
-            break
+            comms.notify_payload_end()
+            exit(1)
 
-
-        time.sleep(0.1)
-
-    if stdout is None or stdin is None:
-        print("Errore nell'avvio del payload.")
+    except Exception as e:
+        print(f"Errore nell'avvio del payload: {e}")
         comms.notify_payload_end()
         exit(1)
+
 
 
 if __name__ == '__main__':

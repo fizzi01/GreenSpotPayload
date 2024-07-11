@@ -34,7 +34,7 @@ class ApiCaller:
                                      headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
-            print(f"Errore nella richiesta: {e}")
+            print(f"Errore nella richiesta POST: {e}")
             return None
         return response.json()
 
@@ -45,7 +45,7 @@ class ApiCaller:
                                     headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
-            print(f"Errore nella richiesta: {e}")
+            print(f"Errore nella richiesta PUT: {e}")
             return None
         return response.json()
 
@@ -56,7 +56,7 @@ class ApiCaller:
                                     headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
-            print(f"Errore nella richiesta: {e}")
+            print(f"Errore nella richiesta UPDATE: {e}")
             return None
         return response.json()
 
@@ -102,8 +102,8 @@ class PayloadCommunication:
                        {"assignedResourceId": self.__resource_id, "memberEmail": self.__email, "stop": True})
 
     def get_resource(self):
-        response =  self.do("POST", RESOURCE_ENDPOINT, RESOURCE_PORT, self.__token, {"assignedResourceId": self.__resource_id, "memberEmail": self.__email})
-        if response is not None:
+        response = self.do("POST", RESOURCE_ENDPOINT, RESOURCE_PORT, self.__token, {"assignedResourceId": self.__resource_id, "memberEmail": self.__email})
+        if response is not None and 'hardwareName' in response:
             hardware_name = response['hardwareName']
         else:
             hardware_name = ""

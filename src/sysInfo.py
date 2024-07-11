@@ -108,6 +108,9 @@ class SystemInfo:
             print("Numero di risorsa non valido.")
 
     def select_resource_byname(self, resource_name):
+        if resource_name == "":
+            print("Nome della risorsa non valido.")
+            return False
         resource_name_lower = resource_name.lower()
         for resource in self.resources_list:
             if resource_name_lower in resource.lower():
