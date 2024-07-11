@@ -1,6 +1,7 @@
 import argparse
 import getpass
 import sys
+import time
 
 from communication import PayloadCommunication
 from payload import ProgramRunner
@@ -8,7 +9,7 @@ from src.sysInfo import SystemInfo
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Esegui un payload e fai una chiamata API.')
+    parser = argparse.ArgumentParser(description='Esegui il payload.')
     parser.add_argument('payload_path', help='Il percorso del payload da avviare.')
     args = parser.parse_args()
 
@@ -19,10 +20,11 @@ def main():
     # Richiesta della password all'utente
     email = input('Inserisci l\'email: ')
     password = getpass.getpass('Inserisci la password: ')
-    resourceId = input('Inserisci l\'id del task: ')
+    resourceId = input('Inserisci l\'id dell\'assignment: ')
 
     runner = ProgramRunner(args.payload_path)
     comms = PayloadCommunication(email=email, resource_id=resourceId)
+
     sys_info = SystemInfo()
     sys_info.get_all_resources()
 
@@ -45,8 +47,23 @@ def main():
     print("Starting Task...")
     stdin, stdout = runner.run()
 
+    while True:
+        if stdout is not None:
+            output = stdout.readline()
+            if output == '':
+                break
+            if output:
+                print(output.strip())
+        else:
+            print("Errore nell'avvio del payload.")
+            break
+
+
+        time.sleep(0.1)
+
     if stdout is None or stdin is None:
         print("Errore nell'avvio del payload.")
+        comms.notify_payload_end()
         exit(1)
 
 

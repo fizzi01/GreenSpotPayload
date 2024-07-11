@@ -11,13 +11,15 @@ class ProgramRunner:
         if self.process is None:
             return None, None
 
-        stdout, stderr = self.process.communicate()
+        stdout = self.process.stdout
+        stderr = self.process.stderr
 
         return stdout, stderr
 
     def stop(self):
         if self.process is not None:
             self.process.terminate()
+            self.process.wait()
             self.process = None
 
     def get_stdout(self):
