@@ -8,9 +8,18 @@ class ApiCaller:
     def __init__(self, base_url):
         self.base_url = base_url
 
+    def _get_url(self, endpoint, port):
+        if port:
+            url = f"{self.base_url}:{port}/{endpoint}"
+        else:
+            url = f"{self.base_url}/{endpoint}"
+
+        return url
+
     def get(self, endpoint, port="", token=None, params=None):
+        url = self._get_url(endpoint, port)
         try:
-            response = requests.get(f"{self.base_url}:{port}/{endpoint}", params=params,
+            response = requests.get(url, params=params,
                                     headers={"Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
@@ -19,8 +28,9 @@ class ApiCaller:
         return response.json()
 
     def post(self, endpoint, port="", token=None, data=None):
+        url = self._get_url(endpoint, port)
         try:
-            response = requests.post(f"{self.base_url}:{port}/{endpoint}", json=data,
+            response = requests.post(url, json=data,
                                      headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
@@ -29,8 +39,9 @@ class ApiCaller:
         return response.json()
 
     def put(self, endpoint, port="", token=None, data=None):
+        url = self._get_url(endpoint, port)
         try:
-            response = requests.put(f"{self.base_url}:{port}/{endpoint}", json=data,
+            response = requests.put(url, json=data,
                                     headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
@@ -39,8 +50,9 @@ class ApiCaller:
         return response.json()
 
     def update(self, endpoint, port="", token=None, data=None):
+        url = self._get_url(endpoint, port)
         try:
-            response = requests.put(f"{self.base_url}:{port}/{endpoint}", json=data,
+            response = requests.put(url, json=data,
                                     headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except RequestException as e:
@@ -83,7 +95,7 @@ class PayloadCommunication:
             return None
 
     def notify_payload_start(self):
-        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token, {"assignedResourceId": self.__resource_id, "memberEmail": self.__email, "start": True})
+        return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token, {"assignedResourceId": self.__resource_id, "memberEmail": self.__email, "start": True, "stop": False})
 
     def notify_payload_end(self):
         return self.do("POST", ASSIGNMENT_NOTIFY_ENDPOINT, ASSIGNMENT_NOTIFY_PORT, self.__token,
