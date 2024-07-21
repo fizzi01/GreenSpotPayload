@@ -7,6 +7,7 @@ from communication import PayloadCommunication
 from payload import ProgramRunner
 from src.sysInfo import SystemInfo
 
+
 def on_error(e, func):
     print(f"Errore nell'avvio: {e}")
     func.notify_payload_start()
@@ -14,13 +15,12 @@ def on_error(e, func):
     exit(1)
 
 
-
 def main():
     parser = argparse.ArgumentParser(description='Esegui il payload.')
-    parser.add_argument('payload_path', help='Il percorso del payload da avviare.')
+    parser.add_argument('--path', help='Il percorso del payload da avviare.', required=True)
     args = parser.parse_args()
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         parser.print_help(sys.stdout)
         sys.exit(1)
 
@@ -29,7 +29,7 @@ def main():
     password = getpass.getpass('Inserisci la password: ')
     resourceId = input('Inserisci l\'id dell\'assignment: ')
 
-    runner = ProgramRunner(args.payload_path)
+    runner = ProgramRunner(args.path)
     comms = PayloadCommunication(email=email, resource_id=resourceId)
 
     sys_info = SystemInfo()
@@ -54,6 +54,14 @@ def main():
 
     # Run the payload
     print("Starting Task...")
+    payload_path = args.path
+    if payload_path == "DEBUG":
+        print("Debug mode")
+        readline = ""
+        while readline != "exit":
+            readline = input(">>> ")
+            time.sleep(2)
+            pass
     try:
         stdin, stdout = runner.run()
 
@@ -68,7 +76,6 @@ def main():
                 print("Errore durante esecuzione.")
                 break
 
-
             time.sleep(0.1)
 
         if stdout is None or stdin is None:
@@ -80,7 +87,6 @@ def main():
         print(f"Errore nell'avvio del payload: {e}")
         comms.notify_payload_end()
         exit(1)
-
 
 
 if __name__ == '__main__':
